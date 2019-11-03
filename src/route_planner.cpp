@@ -10,8 +10,9 @@ RoutePlanner::RoutePlanner(RouteModel &model, float start_x, float start_y, floa
 
     // TODO 2: Use the m_Model.FindClosestNode method to find the closest nodes to the starting and ending coordinates.
     // Store the nodes you find in the RoutePlanner's start_node and end_node attributes.
-    RouteModel::Node start_node = m_Model.FindClosestNode(start_x, start_y);
-    RouteModel::Node end_node = m_Model.FindClosestNode(end_x, end_y);
+
+     start_node = m_Model.FindClosestNode(start_x, start_y); // error: red under the M-model
+     end_node = m_Model.FindClosestNode(end_x, end_y); // error: red under the M-model
 
 }
 
@@ -22,8 +23,7 @@ RoutePlanner::RoutePlanner(RouteModel &model, float start_x, float start_y, floa
 // - Node objects have a distance method to determine the distance to another node.
 
 float RoutePlanner::CalculateHValue(RouteModel::Node const *node) {
-
-    float h_value = node.distance(this->end_node); // degistir
+    float h_value = node->distance(this->end_node); // error: red under the  this pointer
     return h_value;
 
 }
@@ -38,14 +38,21 @@ float RoutePlanner::CalculateHValue(RouteModel::Node const *node) {
 
 void RoutePlanner::AddNeighbors(RouteModel::Node *current_node) {
 
-     current_node.FindNeighbors();
+     current_node->FindNeighbors(); // sends all neighbor nodes into the neighbors vector
 
-      for (int i=0; i<current_node.neighbors.size(); i++) {
+      for (int i=0; i< current_node->neighbors.size(); i++) {
 
-          RoutePlanner::CalculateHValue
-          neigbors[i]
+          RouteModel::Node neighbor = current_node->neighbors[i]; // created neighbor Node Object
+          neighbor.h_value(neighbor); // tried to define H_value
 
+          Model::Node parent = neighbor.parent; // tried to define parent
 
+          // g value is the distance between current node and start node: but how to calculate it?
+
+         open_list.push_back(neighbor); // neigbor added to the open_list. Error: red under the open_list
+         neighbor.visited = true; // set the node's visited attribute to true.
+          
+    
       }
 
 }
