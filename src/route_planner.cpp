@@ -42,17 +42,23 @@ void RoutePlanner::AddNeighbors(RouteModel::Node *current_node) {
 
       for (int i=0; i< current_node->neighbors.size(); i++) {
 
-          RouteModel::Node neighbor = current_node->neighbors[i]; // created neighbor Node Object
-          neighbor.h_value(neighbor); // tried to define H_value
+          // created neighbor_Node Object
+          RouteModel::Node neighbor_node = current_node->neighbors[i]; 
 
-          Model::Node parent = neighbor.parent; // tried to define parent
+          // calculate neighbor_node H_value  
+          neighbor_node.h_value(neighbor_node); // tried to define H_value
 
-          // g value is the distance between current node and start node: but how to calculate it?
+          Model::Node parent = neighbor_node.parent; // tried to define parent
 
-         open_list.push_back(neighbor); // neigbor added to the open_list. Error: red under the open_list
-         neighbor.visited = true; // set the node's visited attribute to true.
+          // g value is the distance between current node and neighbor node
+          neighbor_node.g_value = current_node->distance(neighbor_node); 
+
+         // neighbor_node added into the open_list. Error: red under the open_list
+         open_list.push_back(neighbor_node); 
+
+         // set the node's visited attribute to true.
+         neighbor_node.visited = true; 
           
-    
       }
 
 }
