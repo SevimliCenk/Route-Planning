@@ -1,6 +1,8 @@
 #include "route_planner.h"
 #include <algorithm>
 
+
+//// Question: why model object is created with reference ?
 RoutePlanner::RoutePlanner(RouteModel &model, float start_x, float start_y, float end_x, float end_y): m_Model(model) {
     // Convert inputs to percentage:
     start_x *= 0.01;
@@ -11,8 +13,8 @@ RoutePlanner::RoutePlanner(RouteModel &model, float start_x, float start_y, floa
     // TODO 2: Use the m_Model.FindClosestNode method to find the closest nodes to the starting and ending coordinates.
     // Store the nodes you find in the RoutePlanner's start_node and end_node attributes.
 
-     start_node = m_Model.FindClosestNode(start_x, start_y); // error: red under the M-model
-     end_node = m_Model.FindClosestNode(end_x, end_y); // error: red under the M-model
+    this->start_node = m_Model.FindClosestNode(start_x, start_y); //// error: red under the m_model
+    this->end_node = m_Model.FindClosestNode(end_x, end_y); //// error: red under the m_model
 
 }
 
@@ -22,8 +24,9 @@ RoutePlanner::RoutePlanner(RouteModel &model, float start_x, float start_y, floa
 // - You can use the distance to the end_node for the h value.
 // - Node objects have a distance method to determine the distance to another node.
 
+//// Question: why Node is const and pointer?
 float RoutePlanner::CalculateHValue(RouteModel::Node const *node) {
-    float h_value = node->distance(this->end_node); // error: red under the  this pointer
+    float h_value = node->distance(this->end_node); //// error: red under the  this pointer (end:node is RoutePlanner object, so sent it with this pointer)
     return h_value;
 
 }
@@ -38,23 +41,26 @@ float RoutePlanner::CalculateHValue(RouteModel::Node const *node) {
 
 void RoutePlanner::AddNeighbors(RouteModel::Node *current_node) {
 
-     current_node->FindNeighbors(); // sends all neighbor nodes into the neighbors vector
+     // Use the FindNeighbors() method of the current_node to populate current_node.neighbors vector with all the neighbors.
+     current_node->FindNeighbors(); 
 
+      // For each node in current_node.neighbors, set the parent, the h_value, the g_value.  
       for (int i=0; i< current_node->neighbors.size(); i++) {
 
           // created neighbor_Node Object
-          RouteModel::Node neighbor_node = current_node->neighbors[i]; 
+          RouteModel::Node neighbor_node = current_node->neighbors[i]; //// error: red under the current_node
 
-          // calculate neighbor_node H_value  
-          neighbor_node.h_value(neighbor_node); // tried to define H_value
+          //For each neighbor of the current_node, parent of that neighbor is set to the current_node
+          neighbor_node.parent = current_node;
 
-          Model::Node parent = neighbor_node.parent; // tried to define parent
+          // calculate neighbor_node s H_value  
+          neighbor_node.h_value = RoutePlanner::CalculateHValue(current_node); 
 
           // g value is the distance between current node and neighbor node
           neighbor_node.g_value = current_node->distance(neighbor_node); 
 
-         // neighbor_node added into the open_list. Error: red under the open_list
-         open_list.push_back(neighbor_node); 
+         // neighbor_node added into the open_list. 
+         open_list.push_back(neighbor_node); //// error: red under the open_list
 
          // set the node's visited attribute to true.
          neighbor_node.visited = true; 
@@ -71,8 +77,31 @@ void RoutePlanner::AddNeighbors(RouteModel::Node *current_node) {
 // - Remove that node from the open_list.
 // - Return the pointer.
 
+//// Question: why RoutePlanner Function is returned pointer?
 RouteModel::Node *RoutePlanner::NextNode() {
 
+    //Sort the open_list according to the sum of the h value and g value. For that 2 helper functions are defined: Compare and NodeSort
+    NodeSort(&open_list);
+
+    //Create a pointer to the node in the list with the lowest sum
+    RouteModel::Node *next_node = open_list.back(); 
+
+    // Remove that node from the open_list.
+    open_list.pop_back();
+
+    return next_node; //// Question: why not *next_node?
+}
+
+
+//created 2 helper functions 
+void RoutePlanner::NodeSort(std::vector<RouteModel::Node*> *Node) { 
+    sort(Node->begin(), Node->end(), Compare);
+}
+
+bool Compare(RouteModel::Node* n1, RouteModel::Node* n2) { 
+      float gh1 = n1->g_value + n1->h_value; 
+      float gh2 = n2->g_value + n2->h_value; 
+    return (gh1 > gh2);
 }
 
 
@@ -84,12 +113,32 @@ RouteModel::Node *RoutePlanner::NextNode() {
 // - The returned vector should be in the correct order: the start node should be the first element
 //   of the vector, the end node should be the last element.
 
+
+//// Question: Why it is taking the current_node as pointer?
 std::vector<RouteModel::Node> RoutePlanner::ConstructFinalPath(RouteModel::Node *current_node) {
     // Create path_found vector
     distance = 0.0f;
     std::vector<RouteModel::Node> path_found;
 
     // TODO: Implement your solution here.
+    
+    // Final Node sent into the Node_Vector
+    path_found.push_back(current_node); //// error: red under the path_found
+
+    // while nect parent is not the start point
+    while(current_node != start_node) {
+
+        // the distance from the node to its parent
+        distance += current_node->distance(current_node->parent);  //// error: red under the current_node
+
+        // parent of the current_node is assigned as current node.
+        current_node = current_node->parent;
+
+        path_found.push_back(current_node); //// error: red under the path_found
+    }
+    
+    // vector oder is reversed and corrected
+    std::reverse(std::begin(path_found), std::end(path_found));
 
     distance *= m_Model.MetricScale(); // Multiply the distance by the scale of the map to get meters.
     return path_found;
@@ -97,7 +146,7 @@ std::vector<RouteModel::Node> RoutePlanner::ConstructFinalPath(RouteModel::Node 
 }
 
 
-// TODO 7: Write the A* Search algorithm here.
+// TODO 7: Write the A* Search algorithm here. 
 // Tips:
 // - Use the AddNeighbors method to add all of the neighbors of the current node to the open_list.
 // - Use the NextNode() method to sort the open_list and return the next node.
@@ -108,5 +157,23 @@ void RoutePlanner::AStarSearch() {
     RouteModel::Node *current_node = nullptr;
 
     // TODO: Implement your solution here.
+
+    //// Question: nullptr is sent into open_list, ist that right?
+    open_list.push_back(current_node);
+
+    while(open_list.size()>0) {
+
+        // add all of the neighbors of the current node to the open_list.
+        AddNeighbors(current_node); //// Question: Should I sent it with reference? (&current_node), because ConstructFinalPath(RouteModel::Node *current_node)
+
+        // sort the open_list and return the next node, which is new current_node
+        current_node = NextNode();
+    }
+
+    // return the final path that was found.
+    std::vector<RouteModel::Node> final_path = ConstructFinalPath(current_node);
+     
+    //// Question:: is that the right method to Store the final path in the m_Model.path attribute or there is a better solution?
+    m_Model.path = final_path;
 
 }
