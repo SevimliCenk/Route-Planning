@@ -26,7 +26,7 @@ RoutePlanner::RoutePlanner(RouteModel &model, float start_x, float start_y, floa
 
 //// Question: why Node is const and pointer?
 float RoutePlanner::CalculateHValue(RouteModel::Node const *node) {
-    float h_value = node->distance(this->end_node); //// error: red under the  this pointer (end:node is RoutePlanner object, so sent it with this pointer)
+    float h_value = node->distance(*this->end_node); //// error: red under the  this pointer (end:node is RoutePlanner object, so sent it with this pointer)
     return h_value;
 
 }
@@ -48,22 +48,22 @@ void RoutePlanner::AddNeighbors(RouteModel::Node *current_node) {
       for (int i=0; i< current_node->neighbors.size(); i++) {
 
           // created neighbor_Node Object
-          RouteModel::Node neighbor_node = current_node->neighbors[i]; //// error: red under the current_node
+          RouteModel::Node *neighbor_node = current_node->neighbors[i] ; //// error: red under the current_node
 
           //For each neighbor of the current_node, parent of that neighbor is set to the current_node
-          neighbor_node.parent = current_node;
+          *neighbor_node->parent = current_node;
 
           // calculate neighbor_node s H_value  
-          neighbor_node.h_value = RoutePlanner::CalculateHValue(current_node); 
+          *neighbor_node->h_value = RoutePlanner::CalculateHValue(current_node); 
 
           // g value is the distance between current node and neighbor node
-          neighbor_node.g_value = current_node->distance(neighbor_node); 
+          *neighbor_node.g_value = current_node->distance(*neighbor_node); 
 
          // neighbor_node added into the open_list. 
-         open_list.push_back(neighbor_node); //// error: red under the open_list
+         open_list.push_back(neighbor_node); //// error: red under the open_list 
 
          // set the node's visited attribute to true.
-         neighbor_node.visited = true; 
+         *neighbor_node.visited = true; 
           
       }
 
