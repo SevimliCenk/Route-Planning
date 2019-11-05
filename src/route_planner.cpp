@@ -13,8 +13,8 @@ RoutePlanner::RoutePlanner(RouteModel &model, float start_x, float start_y, floa
     // TODO 2: Use the m_Model.FindClosestNode method to find the closest nodes to the starting and ending coordinates.
     // Store the nodes you find in the RoutePlanner's start_node and end_node attributes.
 
-    this->start_node = m_Model.FindClosestNode(start_x, start_y); //// error: red under the m_model
-    this->end_node = m_Model.FindClosestNode(end_x, end_y); //// error: red under the m_model
+    this->start_node = &m_Model.FindClosestNode(start_x, start_y); //// error: red under the m_model
+    this->end_node = &m_Model.FindClosestNode(end_x, end_y); //// error: red under the m_model
 
 }
 
@@ -26,7 +26,7 @@ RoutePlanner::RoutePlanner(RouteModel &model, float start_x, float start_y, floa
 
 //// Question: why Node is const and pointer?
 float RoutePlanner::CalculateHValue(RouteModel::Node const *node) {
-    float h_value = node->distance(*this->end_node); //// error: red under the  this pointer (end:node is RoutePlanner object, so sent it with this pointer)
+    float h_value = node->distance(*end_node); //// error: red under the  this pointer (end:node is RoutePlanner object, so sent it with this pointer)
     return h_value;
 
 }
@@ -51,19 +51,19 @@ void RoutePlanner::AddNeighbors(RouteModel::Node *current_node) {
           RouteModel::Node *neighbor_node = current_node->neighbors[i] ; //// error: red under the current_node
 
           //For each neighbor of the current_node, parent of that neighbor is set to the current_node
-          *neighbor_node->parent = current_node;
+          neighbor_node->parent = current_node;
 
           // calculate neighbor_node s H_value  
-          *neighbor_node->h_value = RoutePlanner::CalculateHValue(current_node); 
+          neighbor_node->h_value = RoutePlanner::CalculateHValue(current_node); 
 
           // g value is the distance between current node and neighbor node
-          *neighbor_node.g_value = current_node->distance(*neighbor_node); 
+          neighbor_node->g_value = current_node->distance(*neighbor_node); 
 
          // neighbor_node added into the open_list. 
          open_list.push_back(neighbor_node); //// error: red under the open_list 
 
          // set the node's visited attribute to true.
-         *neighbor_node.visited = true; 
+         neighbor_node->visited = true; 
           
       }
 
@@ -123,18 +123,18 @@ std::vector<RouteModel::Node> RoutePlanner::ConstructFinalPath(RouteModel::Node 
     // TODO: Implement your solution here.
     
     // Final Node sent into the Node_Vector
-    path_found.push_back(current_node); //// error: red under the path_found
+    path_found.push_back(*current_node); //// error: red under the path_found
 
     // while nect parent is not the start point
     while(current_node != start_node) {
 
         // the distance from the node to its parent
-        distance += current_node->distance(current_node->parent);  //// error: red under the current_node
+        distance += current_node->distance(*current_node->parent);  //// error: red under the current_node
 
         // parent of the current_node is assigned as current node.
         current_node = current_node->parent;
 
-        path_found.push_back(current_node); //// error: red under the path_found
+        path_found.push_back(*current_node); //// error: red under the path_found
     }
     
     // vector oder is reversed and corrected
