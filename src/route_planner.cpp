@@ -94,8 +94,8 @@ RouteModel::Node *RoutePlanner::NextNode() {
 
 
 //created 2 helper functions 
-void RoutePlanner::NodeSort(std::vector<RouteModel::Node*> *Node) { 
-    sort(Node->begin(), Node->end(), Compare);
+void RoutePlanner::NodeSort(std::vector<RouteModel::Node*> *node) { 
+    sort(node->begin(), node->end(), this->Compare);
 }
 
 bool Compare(RouteModel::Node* n1, RouteModel::Node* n2) { 
