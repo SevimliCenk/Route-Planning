@@ -155,6 +155,7 @@ std::vector<RouteModel::Node> RoutePlanner::ConstructFinalPath(RouteModel::Node 
 
 void RoutePlanner::AStarSearch() {
     RouteModel::Node *current_node = start_node;
+    current_node->visited = true
 
     // TODO: Implement your solution here.
 
