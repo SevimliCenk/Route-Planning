@@ -98,7 +98,7 @@ void RoutePlanner::NodeSort(std::vector<RouteModel::Node*> *node) {
     std::sort(node->begin(), node->end(), Compare);
 }
 
-static bool Compare(RouteModel::Node* n1, RouteModel::Node* n2) { 
+bool Compare(RouteModel::Node* n1, RouteModel::Node* n2) { 
       float gh1 = n1->g_value + n1->h_value; 
       float gh2 = n2->g_value + n2->h_value; 
     return (gh1 > gh2);
@@ -154,7 +154,7 @@ std::vector<RouteModel::Node> RoutePlanner::ConstructFinalPath(RouteModel::Node 
 // - Store the final path in the m_Model.path attribute before the method exits. This path will then be displayed on the map tile.
 
 void RoutePlanner::AStarSearch() {
-    RouteModel::Node *current_node = nullptr;
+    RouteModel::Node *current_node = start_node;
 
     // TODO: Implement your solution here.
 
