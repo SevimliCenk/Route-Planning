@@ -21,8 +21,8 @@ class RoutePlanner {
     RouteModel::Node *NextNode();
 
     // added helper functions
-    void NodeSort(std::vector<RouteModel::Node*> *Node);
-    bool Compare(RouteModel::Node* n1, RouteModel::Node* n2);
+    void NodeSort(std::vector<RouteModel::Node*> *node);
+    static bool Compare(RouteModel::Node* n1, RouteModel::Node* n2);
 
   private:
     // Add private variables or methods declarations here.

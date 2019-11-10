@@ -95,10 +95,10 @@ RouteModel::Node *RoutePlanner::NextNode() {
 
 //created 2 helper functions 
 void RoutePlanner::NodeSort(std::vector<RouteModel::Node*> *node) { 
-    sort(node->begin(), node->end(), this->Compare);
+    std::sort(node->begin(), node->end(), Compare);
 }
 
-bool Compare(RouteModel::Node* n1, RouteModel::Node* n2) { 
+static bool Compare(RouteModel::Node* n1, RouteModel::Node* n2) { 
       float gh1 = n1->g_value + n1->h_value; 
       float gh2 = n2->g_value + n2->h_value; 
     return (gh1 > gh2);
